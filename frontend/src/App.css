@@ -1,0 +1,207 @@
+.auth-btn {
+  background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0 0.2rem;
+  transition: background 0.3s;
+}
+.auth-btn:hover {
+  background: linear-gradient(90deg, #feb47b 0%, #ff7e5f 100%);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.auth-form label {
+  color: #ff7e5f;
+  font-weight: 500;
+}
+.auth-form input {
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ffb88c;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.auth-form button {
+  background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+.auth-form button:hover {
+  background: linear-gradient(90deg, #feb47b 0%, #ff7e5f 100%);
+}
+.App-logo-header {
+  height: 60px;
+  margin-bottom: 0.5rem;
+  animation: App-logo-spin 8s linear infinite;
+}
+
+.subtitle {
+  color: #ffb88c;
+  font-size: 1.2rem;
+  margin-top: 0.2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.card {
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.97);
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.3s;
+}
+.card:hover {
+  box-shadow: 0 12px 40px 0 rgba(255,126,95,0.18);
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.footer {
+  width: 100%;
+  text-align: center;
+  padding: 1.2rem 0 0.7rem 0;
+  color: #ff7e5f;
+  font-size: 1rem;
+  background: transparent;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  min-height: 100vh;
+}
+
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  background: transparent;
+  padding: 2rem 0 1rem 0;
+}
+
+.App-header h1 {
+  font-size: 2.8rem;
+  color: #ff7e5f;
+  margin: 0;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+section {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto 0 auto;
+  background: rgba(255,255,255,0.97);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15);
+  padding: 2rem 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 500;
+  color: #ff7e5f;
+}
+
+form input {
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ffb88c;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+form button {
+  background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+form button:hover {
+  background: linear-gradient(90deg, #feb47b 0%, #ff7e5f 100%);
+}
+
+.Dashboard {
+  margin-top: 2rem;
+}
+.Dashboard h2 {
+  color: #ff7e5f;
+  margin-bottom: 1rem;
+}
+.Dashboard ul {
+  list-style: none;
+  padding: 0;
+}
+.Dashboard li {
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+.Dashboard b {
+  color: #ff7e5f;
+}
+
+@media (max-width: 600px) {
+  section { padding: 1rem 0.3rem; }
+  .App-header h1 { font-size: 2rem; }
+}

@@ -1,0 +1,287 @@
+/* MealPlans Modern Dashboard Styles */
+.mealplans-dashboard {
+  max-width: 1200px;
+  margin: 2.5rem auto;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, #e7f6ef 0%, #f6d365 100%);
+  animation: fadeInDash 0.7s cubic-bezier(.4,1.4,.6,1) 1;
+  border-radius: 2.2rem;
+  box-shadow: 0 8px 40px 0 #e7f6ef99, 0 2px 12px #fda08533;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes fadeInDash {
+  from { opacity: 0; transform: translateY(40px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.mealplans-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2.2rem;
+  flex-wrap: wrap;
+}
+.mealplans-greeting {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #232526;
+  margin-bottom: 0.5rem;
+}
+.mealplans-date {
+  font-size: 1.13rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+.mealplans-goals {
+  display: flex;
+  gap: 2.2rem;
+  align-items: center;
+}
+.mealplans-goal-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #232526;
+}
+.mealplans-goal-ring svg {
+  margin-bottom: 0.3rem;
+}
+.mealplans-weeknav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-bottom: 2.2rem;
+}
+.mealplans-weeknav-arrow {
+  font-size: 1.7rem;
+  color: #ff9900;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s, transform 0.12s;
+}
+.mealplans-weeknav-arrow:hover {
+  color: #fda085;
+  transform: scale(1.15);
+}
+.mealplans-weeknav-tab {
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #232526;
+  background: #f8fafb;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.3rem;
+  margin: 0 0.2rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.mealplans-weeknav-tab.active {
+  color: #fff;
+  background: linear-gradient(90deg, #ff9900 60%, #fda085 100%);
+  border: 2px solid #ff9900;
+}
+.mealplans-meals-row {
+  display: flex;
+  gap: 2.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+.mealplans-meal-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 24px #e7f6ef33;
+  padding: 1.7rem 1.5rem 1.3rem 1.5rem;
+  min-width: 270px;
+  max-width: 320px;
+  flex: 1 1 270px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  animation: fadeInStep 0.7s cubic-bezier(.23,1.12,.32,1);
+}
+.mealplans-meal-img {
+  width: 100%;
+  max-width: 180px;
+  border-radius: 1.1rem;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 2px 8px #e7f6ef33;
+}
+.mealplans-meal-title {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #232526;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+.mealplans-meal-macros {
+  display: flex;
+  gap: 1.1rem;
+  margin-bottom: 0.7rem;
+  font-size: 1.01rem;
+  color: #888;
+}
+.mealplans-meal-macro {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.mealplans-meal-preptime {
+  font-size: 0.98rem;
+  color: #888;
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.mealplans-meal-actions {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 0.7rem;
+}
+.mealplans-meal-action-btn {
+  font-size: 1.01rem;
+  font-weight: 700;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.3rem;
+  border: none;
+  background: #e7f6ef;
+  color: #232526;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.12s;
+  box-shadow: 0 2px 8px #e7f6ef33;
+}
+.mealplans-meal-action-btn:active {
+  transform: scale(0.97);
+}
+.mealplans-meal-action-btn.primary {
+  background: linear-gradient(90deg, #ff9900 60%, #fda085 100%);
+  color: #fff;
+  border: 2px solid #ff9900;
+}
+.mealplans-grocery-btn {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  z-index: 100;
+  font-size: 1.18rem;
+  font-weight: 900;
+  border-radius: 1.2rem;
+  padding: 1.1rem 2.5rem;
+  background: linear-gradient(90deg, #ff9900 60%, #fda085 100%);
+  color: #fff;
+  border: 2.5px solid #ff9900;
+  box-shadow: 0 8px 32px #ff990088;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.12s;
+}
+.mealplans-grocery-btn:hover {
+  background: linear-gradient(90deg, #fda085 60%, #ff9900 100%);
+  box-shadow: 0 16px 64px #ff9900aa;
+  transform: scale(1.04);
+}
+
+/* --- Modern Recipe Modal Styles --- */
+.mealplans-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeInModalBg 0.35s cubic-bezier(.4,1.4,.6,1) both;
+}
+@keyframes fadeInModalBg {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mealplans-modal-content {
+  background: linear-gradient(135deg, #fff 60%, #e7f6ef 100%);
+  border-radius: 2rem;
+  padding: 2.5rem 2.7rem 2.2rem 2.7rem;
+  box-shadow: 0 12px 48px 0 #23d5ab33, 0 2px 12px #fda08533;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: popInModal 0.55s cubic-bezier(.4,1.4,.6,1) both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2.5px solid #e7f6ef;
+}
+@keyframes popInModal {
+  0% { opacity: 0; transform: translateY(60px) scale(0.92); }
+  60% { opacity: 1; transform: translateY(-8px) scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+.mealplans-modal-content img {
+  box-shadow: 0 4px 24px #23d5ab22;
+  margin-bottom: 1.5rem;
+  border-radius: 1.2rem;
+  max-height: 180px;
+  object-fit: cover;
+}
+.mealplans-modal-content h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #232526;
+  margin-bottom: 0.7rem;
+  text-align: center;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 2px #e7f6ef88;
+}
+.mealplans-modal-content h3 {
+  font-size: 1.13rem;
+  font-weight: 800;
+  color: #23d5ab;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+.mealplans-modal-content ul, .mealplans-modal-content ol {
+  margin-left: 1.2rem;
+  margin-bottom: 0.7rem;
+  color: #232526;
+  font-size: 1.01rem;
+  line-height: 1.6;
+}
+.mealplans-modal-content ul li, .mealplans-modal-content ol li {
+  margin-bottom: 0.3rem;
+}
+.mealplans-modal-content button {
+  margin-top: 1.2rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.3rem;
+  border: none;
+  background: linear-gradient(90deg, #e7f6ef 60%, #f6d365 100%);
+  color: #232526;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s;
+  box-shadow: 0 1px 6px #23d5ab11;
+  overflow: visible;
+  white-space: normal;
+}
+.mealplans-modal-content button.primary {
+  background: linear-gradient(90deg, #fda085 0%, #23d5ab 100%);
+  color: #fff;
+}
+.mealplans-modal-content button:hover {
+  background: linear-gradient(90deg, #f6d365 0%, #e7f6ef 100%);
+  color: #ff9900;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 2px 12px #fda08533;
+}

@@ -1,0 +1,185 @@
+/* Tracking Dashboard Modern Styles */
+.tracking-dashboard {
+  width: 100vw;
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, #e7f6ef 0%, #f6d365 100%);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeInDash 1.2s cubic-bezier(.77,0,.18,1) both;
+}
+
+@keyframes fadeInDash {
+  0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+  100% { opacity: 1; transform: none; }
+}
+
+body, #root {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  background: #fff;
+  height: 100vh;
+}
+
+.tracking-dashboard {
+  width: 100vw;
+  max-width: 100vw;
+  padding: 2.5rem 1.5rem;
+  background: #fff;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for Webkit browsers */
+.tracking-dashboard::-webkit-scrollbar {
+  width: 10px;
+}
+.tracking-dashboard::-webkit-scrollbar-thumb {
+  background: #23d5ab;
+  border-radius: 8px;
+}
+.tracking-dashboard::-webkit-scrollbar-track {
+  background: #e7f6ef;
+  border-radius: 8px;
+}
+.tracking-section {
+  margin-bottom: 2.5rem;
+  width: 100%;
+  max-width: 1100px;
+  background: rgba(255,255,255,0.55);
+  border-radius: 2rem;
+  box-shadow: 0 8px 40px #e7f6ef99, 0 2px 12px #fda08533;
+  backdrop-filter: blur(12px);
+  padding: 2rem 2.5rem 2.5rem 2.5rem;
+  animation: fadeInSection 1.1s cubic-bezier(.77,0,.18,1) both;
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeInSection {
+  0% { opacity: 0; transform: translateY(60px) scale(0.97); }
+  100% { opacity: 1; transform: none; }
+}
+.tracking-section-title {
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #23d5ab;
+  margin-bottom: 1.1rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 12px #23d5ab22;
+  background: linear-gradient(90deg, #23d5ab 40%, #fda085 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.tracking-metrics-row {
+  display: flex;
+  gap: 2.2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.tracking-metric-card {
+  background: rgba(255,255,255,0.7);
+  border-radius: 1.1rem;
+  box-shadow: 0 2px 16px #23d5ab22, 0 1.5px 8px #fda08522;
+  padding: 1.2rem 2.2rem;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #232526;
+  min-width: 180px;
+  text-align: center;
+  margin-bottom: 0.7rem;
+  transition: transform 0.25s cubic-bezier(.77,0,.18,1), box-shadow 0.25s;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.tracking-metric-card:hover {
+  transform: translateY(-6px) scale(1.04) rotate(-1deg);
+  box-shadow: 0 8px 32px #23d5ab33, 0 2px 12px #fda08533;
+}
+.tracking-chart-container {
+  background: rgba(231,246,239,0.85);
+  border-radius: 1.2rem;
+  padding: 1.5rem 1.2rem;
+  box-shadow: 0 2px 16px #23d5ab11;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.25s;
+  animation: fadeInChart 1.1s cubic-bezier(.77,0,.18,1) both;
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInChart {
+  0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+  100% { opacity: 1; transform: none; }
+}
+.tracking-photo-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+.tracking-photo {
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 16px #23d5ab33;
+  width: 160px;
+  height: 200px;
+  object-fit: cover;
+  background: #e7f6ef;
+  transition: transform 0.22s cubic-bezier(.77,0,.18,1), box-shadow 0.22s;
+  cursor: pointer;
+}
+.tracking-photo:hover {
+  transform: scale(1.04) rotate(-1.5deg);
+  box-shadow: 0 8px 32px #23d5ab33, 0 2px 12px #fda08533;
+}
+.tracking-notes {
+  background: rgba(231,246,239,0.85);
+  border-radius: 1.1rem;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.08rem;
+  color: #232526;
+  min-height: 80px;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 12px #23d5ab11;
+  transition: box-shadow 0.22s;
+}
+.tracking-notes:focus {
+  box-shadow: 0 8px 32px #23d5ab33, 0 2px 12px #fda08533;
+  outline: none;
+}
+.tracking-hydration-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+.tracking-water-glass {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
+  background: #e7f6ef;
+  border: 2px solid #23d5ab;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #23d5ab;
+  cursor: pointer;
+  transition: background 0.22s, border 0.22s, transform 0.22s;
+  box-shadow: 0 1.5px 8px #23d5ab11;
+}
+.tracking-water-glass:hover {
+  transform: scale(1.12) rotate(-2deg);
+  background: #23d5ab22;
+}
+.tracking-water-glass.filled {
+  background: linear-gradient(180deg, #23d5ab 0%, #e7f6ef 100%);
+  color: #fff;
+  border: 2px solid #23d5ab;
+  box-shadow: 0 2px 12px #23d5ab33;
+}
