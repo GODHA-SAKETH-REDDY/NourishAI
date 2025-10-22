@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import './Tracking.css';
 
 // Chart.js registration (required for v3+)
@@ -28,30 +29,27 @@ ChartJS.register(
   Legend
 );
 
-// Demo data
-const weightData = [80, 79.5, 79, 78.7, 78.2, 77.8, 77.5];
-const weightLabels = ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25", "Today"];
-const bodyMeasurements = {
-  waist: [90, 89, 88.5, 88, 87.5, 87, 86.5],
-  hips: [100, 99.5, 99, 98.5, 98, 97.5, 97]
-};
-const calorieIntake = [1800, 1950, 2100, 1700, 2000, 1850, 2200];
-const calorieTarget = 2000;
-const macros = { protein: 35, carbs: 45, fat: 20 };
-const micronutrients = { Fiber: 80, Sugar: 60, Sodium: 70, VitaminC: 90 };
-const activityLog = [
-  { date: "2025-09-10", activity: "Morning Walk", steps: 3500, kcal: 120 },
-  { date: "2025-09-11", activity: "Gym Session", steps: 0, kcal: 350 },
-  { date: "2025-09-12", activity: "Yoga", steps: 0, kcal: 90 },
-];
-const progressPhotos = [
-  { url: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", date: "2025-08-15" },
-  { url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", date: "2025-09-15" }
-];
-
 export default function Tracking() {
+  const [userData, setUserData] = useState(null);
   const [hydration, setHydration] = useState(5);
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    // Fetch user-specific data from the backend
+    axios.get("/api/user/tracking")
+      .then(response => {
+        setUserData(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching user data:", error);
+      });
+  }, []);
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
+  const { weightData, weightLabels, bodyMeasurements, calorieIntake, calorieTarget, macros, micronutrients, activityLog, progressPhotos } = userData;
 
   // Chart.js configs
   const weightChart = {
@@ -69,7 +67,7 @@ export default function Tracking() {
       },
       {
         label: "Goal",
-        data: Array(weightLabels.length).fill(75),
+        data: Array(weightLabels.length).fill(userData.weightGoal),
         borderDash: [8, 6],
         borderColor: "#fda085",
         borderWidth: 2,

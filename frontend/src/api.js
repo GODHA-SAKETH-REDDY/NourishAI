@@ -37,4 +37,13 @@ export async function fetchRecipeDetail(recipeId) {
   return res.json();
 }
 
+// New code block
+const BASE_URL = "http://127.0.0.1:8000/api";
+
+export const fetchData = async () => {
+    const response = await fetch(`${BASE_URL}/some-endpoint/`);
+    const data = await response.json();
+    return data;
+};
+
 // Add more API functions as needed
