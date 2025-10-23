@@ -35,8 +35,8 @@ export default function Tracking() {
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
-    // Fetch user-specific data from the backend
-    axios.get("/api/user/tracking")
+    const userId = localStorage.getItem("userId"); // Assuming userId is stored in localStorage
+    axios.get(`/api/user/tracking/${userId}`)
       .then(response => {
         setUserData(response.data);
       })

@@ -17,4 +17,5 @@ urlpatterns = [
     path('foodlogs/', FoodLogListCreateView.as_view(), name='foodlog-list-create'),
     path('foodlogs/<int:pk>/', FoodLogRetrieveUpdateDestroyView.as_view(), name='foodlog-detail'),
     path('userprofile/<int:pk>/', views.userprofile_detail, name='userprofile-detail'),
+    path('user/tracking/<int:pk>/', views.tracking_data, name='tracking-data'),
 ]

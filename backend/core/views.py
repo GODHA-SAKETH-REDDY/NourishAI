@@ -165,3 +165,34 @@ def userprofile_detail(request, pk):
         return Response({'error': 'UserProfile not found'}, status=404)
     serializer = UserProfileSerializer(profile)
     return Response(serializer.data)
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def tracking_data(request, pk):
+    try:
+        profile = UserProfile.objects.get(pk=pk)
+        tracking_info = {
+            "weightData": [80, 79.5, 79, 78.7, 78.2, 77.8, 77.5],
+            "weightLabels": ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25", "Today"],
+            "bodyMeasurements": {
+                "waist": [90, 89, 88.5, 88, 87.5, 87, 86.5],
+                "hips": [100, 99.5, 99, 98.5, 98, 97.5, 97]
+            },
+            "calorieIntake": [1800, 1950, 2100, 1700, 2000, 1850, 2200],
+            "calorieTarget": 2000,
+            "macros": {"protein": 35, "carbs": 45, "fat": 20},
+            "micronutrients": {"Fiber": 80, "Sugar": 60, "Sodium": 70, "VitaminC": 90},
+            "activityLog": [
+                {"date": "2025-09-10", "activity": "Morning Walk", "steps": 3500, "kcal": 120},
+                {"date": "2025-09-11", "activity": "Gym Session", "steps": 0, "kcal": 350},
+                {"date": "2025-09-12", "activity": "Yoga", "steps": 0, "kcal": 90}
+            ],
+            "progressPhotos": [
+                {"url": "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", "date": "2025-08-15"},
+                {"url": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", "date": "2025-09-15"}
+            ]
+        }
+        return Response(tracking_info)
+    except UserProfile.DoesNotExist:
+        return Response({'error': 'UserProfile not found'}, status=404)
