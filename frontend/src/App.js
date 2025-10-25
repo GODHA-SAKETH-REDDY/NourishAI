@@ -1,23 +1,11 @@
-
-
 import './App.css';
 
 
 import MainPage from './MainPage';
 import Profile from './Profile';
-import Onboarding from './Onboarding';
-import MealPlans from './MealPlans';
-import AIChat from './AIChat';
-import Tracking from './Tracking';
-import Community from './Community';
-import Reports from './Reports';
-// removed duplicate useState import
 import Signup from './Signup';
 import Login from './Login';
-import RecipeBrowser from './RecipeBrowser';
-import FoodLog from './FoodLog';
 import LandingPage from './LandingPage';
-import logo from './logo.svg';
 
 
 import React, { useState } from 'react';
@@ -25,11 +13,20 @@ import React, { useState } from 'react';
 
 
 function App() {
-  const [profileId, setProfileId] = useState('');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access'));
   const [page, setPage] = useState(() => !!localStorage.getItem('access') ? 'main' : 'landing');
+  const [loggedMeals, setLoggedMeals] = useState([]);
+
+  const handleLogMeal = (meal) => {
+    const newLoggedMeal = {
+      ...meal,
+      date: new Date().toISOString(),
+      id: Date.now(),
+    };
+    setLoggedMeals((prevLoggedMeals) => [...prevLoggedMeals, newLoggedMeal]);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('access');
@@ -94,7 +91,7 @@ function App() {
           {page === 'profile' ? (
             <Profile onBack={() => setPage('main')} />
           ) : (
-            <MainPage setPage={setPage} page={page} onLogout={handleLogout} />
+            <MainPage setPage={setPage} page={page} onLogout={handleLogout} onLogMeal={handleLogMeal} loggedMeals={loggedMeals} />
           )}
         </main>
       </div>

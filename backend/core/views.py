@@ -172,6 +172,30 @@ from rest_framework.response import Response
 def tracking_data(request, pk):
     try:
         profile = UserProfile.objects.get(pk=pk)
+        food_logs = FoodLog.objects.filter(user_profile=profile)
+
+        # Group food logs by date and calculate daily calorie intake
+        daily_calories = {}
+        daily_macros = {"protein": {}, "carbs": {}, "fat": {}}
+        for log in food_logs:
+            date = log.date.strftime('%Y-%m-%d')
+            if date not in daily_calories:
+                daily_calories[date] = 0
+                daily_macros["protein"][date] = 0
+                daily_macros["carbs"][date] = 0
+                daily_macros["fat"][date] = 0
+            daily_calories[date] += log.calories
+            daily_macros["protein"][date] += log.protein
+            daily_macros["carbs"][date] += log.carbs
+            daily_macros["fat"][date] += log.fat
+
+        calorie_intake = [daily_calories[date] for date in sorted(daily_calories.keys())]
+        macros = {
+            "protein": [daily_macros["protein"][date] for date in sorted(daily_macros["protein"].keys())],
+            "carbs": [daily_macros["carbs"][date] for date in sorted(daily_macros["carbs"].keys())],
+            "fat": [daily_macros["fat"][date] for date in sorted(daily_macros["fat"].keys())]
+        }
+
         tracking_info = {
             "weightData": [80, 79.5, 79, 78.7, 78.2, 77.8, 77.5],
             "weightLabels": ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25", "Today"],
@@ -179,9 +203,9 @@ def tracking_data(request, pk):
                 "waist": [90, 89, 88.5, 88, 87.5, 87, 86.5],
                 "hips": [100, 99.5, 99, 98.5, 98, 97.5, 97]
             },
-            "calorieIntake": [1800, 1950, 2100, 1700, 2000, 1850, 2200],
+            "calorieIntake": calorie_intake,
             "calorieTarget": 2000,
-            "macros": {"protein": 35, "carbs": 45, "fat": 20},
+            "macros": macros,
             "micronutrients": {"Fiber": 80, "Sugar": 60, "Sodium": 70, "VitaminC": 90},
             "activityLog": [
                 {"date": "2025-09-10", "activity": "Morning Walk", "steps": 3500, "kcal": 120},

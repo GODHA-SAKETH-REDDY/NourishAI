@@ -2,22 +2,20 @@ import { FaAppleAlt } from "react-icons/fa";
 import './MainPage.css';
 import Onboarding from "./Onboarding";
 import MealPlans from "./MealPlans";
-import AIChat from "./AIChat";
-import Tracking from "./Tracking";
 import Community from "./Community";
 
 import Reports from "./Reports";
 import Profile from "./Profile";
+import TrackingPage from "./TrackingPage";
 
-export default function MainPage({ setPage, page, onLogout }) {
+export default function MainPage({ setPage, page, onLogout, onLogMeal, loggedMeals }) {
   let content;
   if (page === 'onboarding') content = <Onboarding onComplete={setPage} />;
-  else if (page === 'mealplans') content = <MealPlans />;
-  else if (page === 'aichat') content = <AIChat />;
-  else if (page === 'tracking') content = <Tracking />;
+  else if (page === 'mealplans') content = <MealPlans onLogMeal={onLogMeal} />;
   else if (page === 'community') content = <Community />;
   else if (page === 'reports') content = <Reports />;
   else if (page === 'profile') content = <Profile onBack={() => setPage('main')} />;
+  else if (page === 'tracking') content = <TrackingPage loggedMeals={loggedMeals} />;
   else content = (
     <div className="main-content">
       <div className="main-left-col">
@@ -105,11 +103,10 @@ export default function MainPage({ setPage, page, onLogout }) {
         <ul className="main-nav-links">
           <li onClick={() => setPage('onboarding')}>Onboarding</li>
           <li onClick={() => setPage('mealplans')}>Meal Plans</li>
-          <li onClick={() => setPage('aichat')}>AI Chat</li>
-          <li onClick={() => setPage('tracking')}>Tracking</li>
           <li onClick={() => setPage('community')}>Community</li>
           <li onClick={() => setPage('reports')}>Reports</li>
           <li onClick={() => setPage('profile')}>Profile</li>
+          <li onClick={() => setPage('tracking')}>Tracking</li>
         </ul>
         <div className="main-profile-dot" onClick={() => setPage('profile')} title="Profile"></div>
         <button className="main-logout-btn" onClick={onLogout} title="Logout">Logout</button>

@@ -6,7 +6,7 @@ const userName = "Alex";
 const today = new Date();
 const fallbackImg = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80";
 
-export default function MealPlans({ onboardingData }) {
+export default function MealPlans({ onboardingData, onLogMeal }) {
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +50,6 @@ export default function MealPlans({ onboardingData }) {
     carbs: mealPlan.carbs_g,
     fat: mealPlan.fats_g
   };
-  const dailyGoals = progress;
 
   return (
     <div className="mealplans-dashboard">
@@ -116,7 +115,7 @@ export default function MealPlans({ onboardingData }) {
             <ol>
               {(showRecipe.instructions || '').split('\n').map((step, i) => <li key={i}>{step}</li>)}
             </ol>
-            <button className="mealplans-modal-content button primary" onClick={() => { alert('Meal logged!'); setShowRecipe(null); }}>Log Meal</button>
+            <button className="mealplans-modal-content button primary" onClick={() => { onLogMeal(showRecipe); setShowRecipe(null); }}>Log Meal</button>
             <button className="mealplans-modal-content button" onClick={() => setShowRecipe(null)}>Close</button>
           </div>
         </div>
