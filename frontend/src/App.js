@@ -8,7 +8,7 @@ import Login from './Login';
 import LandingPage from './LandingPage';
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 
 
@@ -17,13 +17,21 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('access'));
   const [page, setPage] = useState(() => !!localStorage.getItem('access') ? 'main' : 'landing');
-  const [loggedMeals, setLoggedMeals] = useState([]);
+  const [loggedMeals, setLoggedMeals] = useState(() => {
+    try {
+      const raw = localStorage.getItem('loggedMeals');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
   const handleLogMeal = (meal) => {
     const newLoggedMeal = {
       ...meal,
+      // keep original recipe id intact; use a separate localId for client cache
       date: new Date().toISOString(),
-      id: Date.now(),
+      localId: Date.now(),
     };
     setLoggedMeals((prevLoggedMeals) => [...prevLoggedMeals, newLoggedMeal]);
   };
@@ -43,6 +51,15 @@ function App() {
     setShowSignup(false);
     setPage('main');
   };
+
+  // Persist logged meals across refresh (offline-friendly)
+  useEffect(() => {
+    try {
+      localStorage.setItem('loggedMeals', JSON.stringify(loggedMeals));
+    } catch (e) {
+      // ignore quota errors
+    }
+  }, [loggedMeals]);
 
   // Always show landing page first if not logged in
   if (!isLoggedIn && !showLogin && !showSignup && page === 'landing') {

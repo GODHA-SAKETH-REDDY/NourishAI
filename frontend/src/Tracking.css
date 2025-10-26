@@ -1,0 +1,42 @@
+/* Tracking page layout */
+.tracking-page {
+	padding: 1.25rem 1.25rem 2rem;
+	/* Make this a scrollable flex child inside .main-bg which has overflow hidden */
+	flex: 1 1 auto;
+	min-height: 0; /* important so child can shrink and enable scrolling */
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.progress-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 0.75rem 0 1.25rem; }
+.progress-item { background: #eefbf4; border: 1px solid #d1fae5; border-radius: 12px; padding: 0.75rem; text-align: center; }
+.progress-item h2 { margin: 0; font-size: 1.35rem; }
+.progress-item p { margin: 0.25rem 0 0; color: #475569; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.chart { background: #effaf5; border: 1px solid #dcfce7; border-radius: 14px; padding: 0.75rem; height: 280px; }
+.chart h3 { margin: 0 0 0.5rem 0; font-size: 1.05rem; }
+.chart .log-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.chart .log-row input { flex: 1; padding: 0.4rem 0.5rem; border: 1px solid #d1fae5; border-radius: 8px; }
+.chart .log-row button { padding: 0.45rem 0.8rem; border-radius: 8px; border: 1px solid #10b981; background: #10b981; color: #fff; font-weight: 700; }
+
+.weekly-chart { background: #effaf5; border: 1px solid #dcfce7; border-radius: 14px; padding: 0.75rem; height: 320px; margin-bottom: 1rem; }
+
+.tracking-controls { display: grid; grid-template-columns: 1fr; gap: 0.5rem; margin: 0.5rem 0 0.75rem; }
+.control-group { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)) auto; gap: 0.5rem; }
+.btn-add { padding: 0.45rem 0.8rem; border-radius: 10px; border: 1px solid #10b981; background: #10b981; color: #fff; font-weight: 800; }
+
+.metric-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
+.metric-card { background: #ffffff; border-radius: 14px; padding: 0.9rem; box-shadow: 0 6px 18px rgba(16,185,129,0.08); border: 1px solid #e5efe9; }
+.metric-title { font-weight: 700; margin-bottom: 0.25rem; }
+.metric-sub { color: #475569; margin-bottom: 0.5rem; }
+.metric-bar { height: 8px; background: #e2f7ef; border-radius: 999px; overflow: hidden; }
+.metric-bar .fill { height: 100%; border-radius: 999px; }
+.metric-bar .fill.protein { background: #10b981; }
+.metric-bar .fill.carbs { background: #f59e0b; }
+.metric-bar .fill.fats { background: #ef4444; }
+
+.logged-meals-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; margin-top: 0.75rem; }
+.logged-meal-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.75rem; box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
+.logged-meal-card h3 { margin: 0 0 0.25rem 0; font-size: 1rem; }
+.logged-meal-card p { margin: 0 0 0.4rem 0; color: #64748b; font-size: 0.9rem; }
+.meal-macros span { margin-right: 0.5rem; }

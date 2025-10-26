@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import './Onboarding.css';
+import { submitOnboarding } from './api';
 
 const initialState = {
   age: '',
@@ -80,7 +81,12 @@ export default function Onboarding({ onComplete }) {
         if (i < messages.length) setDynamicText(messages[i]);
         else {
           clearInterval(interval);
-          setTimeout(() => {
+          setTimeout(async () => {
+            try {
+              await submitOnboarding(form);
+            } catch (_) {
+              // Non-blocking: proceed even if onboarding persistence fails
+            }
             setLoading(false);
             if (onComplete) onComplete();
           }, 1200);
@@ -88,7 +94,7 @@ export default function Onboarding({ onComplete }) {
       }, 1200);
       return () => clearInterval(interval);
     }
-  }, [step, loading, form.cuisines, onComplete]);
+  }, [step, loading, form, onComplete]);
 
   // When loading finishes, redirect to Meal Plans
   React.useEffect(() => {

@@ -1,9 +1,26 @@
-from .models import UserProfile, Recipe, FoodLog
-from .serializers import RecipeSerializer, FoodLogSerializer
+from .models import UserProfile, Recipe, FoodLog, WeightLog, MeasurementLog, CommunityPost, CommunityComment
+from .serializers import (
+	RecipeSerializer,
+	FoodLogSerializer,
+	UserProfileSerializer,
+	WeightLogSerializer,
+	MeasurementLogSerializer,
+	CommunityPostSerializer,
+	CommunityCommentSerializer,
+)
 from rest_framework import generics, filters
-
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
+import math
+import random
+from django.utils import timezone
+from django.db.models import Count
+from rest_framework.pagination import PageNumberPagination
+from .serializers import CommunityGroupSerializer, CommunityChallengeSerializer
+from .models import CommunityGroup, CommunityChallenge
 
 # Recipe List & Search API
 class RecipeListView(generics.ListAPIView):
@@ -18,31 +35,6 @@ class RecipeDetailView(generics.RetrieveAPIView):
 	serializer_class = RecipeSerializer
 
 # User registration endpoint
-
-# FoodLog API views
-class FoodLogListCreateView(generics.ListCreateAPIView):
-	serializer_class = FoodLogSerializer
-	permission_classes = [IsAuthenticated]
-
-	def get_queryset(self):
-		# Only return logs for the authenticated user's profile
-		return FoodLog.objects.filter(user_profile__user=self.request.user).order_by('-date')
-
-	def perform_create(self, serializer):
-		# Attach the user's profile automatically
-		user_profile = UserProfile.objects.get(user=self.request.user)
-		serializer.save(user_profile=user_profile)
-
-
-class FoodLogRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-	serializer_class = FoodLogSerializer
-	permission_classes = [IsAuthenticated]
-
-	def get_queryset(self):
-		return FoodLog.objects.filter(user_profile__user=self.request.user)
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
@@ -56,14 +48,204 @@ def register(request):
 	user = User.objects.create_user(username=username, password=password, email=email)
 	return Response({'message': 'User registered successfully.'}, status=201)
 
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
+# FoodLog API views
+class FoodLogListCreateView(generics.ListCreateAPIView):
+	serializer_class = FoodLogSerializer
+	permission_classes = [IsAuthenticated]
 
-from .models import UserProfile, Recipe
-from .serializers import UserProfileSerializer
-import math
+	def get_queryset(self):
+		# Only return logs for the authenticated user's profile
+		return FoodLog.objects.filter(user_profile__user=self.request.user).order_by('-date')
+
+	def perform_create(self, serializer):
+		# Attach or create the user's profile automatically to avoid DoesNotExist
+		user_profile, _ = UserProfile.objects.get_or_create(user=self.request.user, defaults={
+			# provide minimal defaults if profile did not exist
+			'age': 25,
+			'gender': 'male',
+			'height_cm': 170,
+			'weight_kg': 70,
+			'activity_level': 'sedentary',
+			'goals': 'general health',
+		})
+		serializer.save(user_profile=user_profile)
+
+
+class FoodLogRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = FoodLogSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return FoodLog.objects.filter(user_profile__user=self.request.user)
+
+
+# Weight logs
+class WeightLogListCreateView(generics.ListCreateAPIView):
+	serializer_class = WeightLogSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return WeightLog.objects.filter(user_profile__user=self.request.user).order_by('date')
+
+	def perform_create(self, serializer):
+		user_profile = UserProfile.objects.get(user=self.request.user)
+		serializer.save(user_profile=user_profile)
+
+
+class WeightLogRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = WeightLogSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return WeightLog.objects.filter(user_profile__user=self.request.user)
+
+
+# Measurement logs
+class MeasurementLogListCreateView(generics.ListCreateAPIView):
+	serializer_class = MeasurementLogSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return MeasurementLog.objects.filter(user_profile__user=self.request.user).order_by('date')
+
+	def perform_create(self, serializer):
+		user_profile = UserProfile.objects.get(user=self.request.user)
+		serializer.save(user_profile=user_profile)
+
+
+class MeasurementLogRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = MeasurementLogSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return MeasurementLog.objects.filter(user_profile__user=self.request.user)
+
+
+# --- Community feed views ---
+class PostPagination(PageNumberPagination):
+	page_size = 10
+
+
+class CommunityPostListCreateView(generics.ListCreateAPIView):
+	serializer_class = CommunityPostSerializer
+	permission_classes = [IsAuthenticated]
+	pagination_class = PostPagination
+
+	def get_queryset(self):
+		qs = CommunityPost.objects.all().select_related('user_profile__user').prefetch_related('comments__user_profile__user', 'likes')
+		# Annotate with a non-conflicting name to avoid clashing with the model @property `likes_count`
+		qs = qs.annotate(num_likes=Count('likes'))
+		topic = self.request.query_params.get('topic')
+		if topic and topic not in ["Trending", "Newest"]:
+			qs = qs.filter(topic=topic)
+		# For "Newest" or default, ordering already by -created_at; for "Trending" we could order by likes
+		sort = self.request.query_params.get('sort')
+		if sort == 'trending':
+			# Order by the annotated count; serializer will still expose `likes_count` via the model property
+			qs = qs.order_by('-num_likes', '-created_at')
+		return qs
+
+	def get_serializer_context(self):
+		ctx = super().get_serializer_context()
+		ctx['request'] = self.request
+		return ctx
+
+	def perform_create(self, serializer):
+		user_profile, _ = UserProfile.objects.get_or_create(user=self.request.user, defaults={
+			'age': 25,
+			'gender': 'male',
+			'height_cm': 170,
+			'weight_kg': 70,
+			'activity_level': 'sedentary',
+			'goals': 'general health',
+		})
+		serializer.save(user_profile=user_profile)
+
+
+class CommunityPostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+	serializer_class = CommunityPostSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return CommunityPost.objects.all().select_related('user_profile__user').prefetch_related('comments__user_profile__user', 'likes')
+
+	def get_serializer_context(self):
+		ctx = super().get_serializer_context()
+		ctx['request'] = self.request
+		return ctx
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def community_toggle_like(request, pk):
+	try:
+		post = CommunityPost.objects.get(pk=pk)
+	except CommunityPost.DoesNotExist:
+		return Response({'error': 'Not found'}, status=404)
+	user_profile, _ = UserProfile.objects.get_or_create(user=request.user, defaults={
+		'age': 25,
+		'gender': 'male',
+		'height_cm': 170,
+		'weight_kg': 70,
+		'activity_level': 'sedentary',
+		'goals': 'general health',
+	})
+	if post.likes.filter(id=user_profile.id).exists():
+		post.likes.remove(user_profile)
+		liked = False
+	else:
+		post.likes.add(user_profile)
+		liked = True
+	serializer = CommunityPostSerializer(post, context={'request': request})
+	return Response({**serializer.data, 'liked': liked})
+
+
+class CommunityCommentListCreateView(generics.ListCreateAPIView):
+	serializer_class = CommunityCommentSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		post_id = self.kwargs['post_pk']
+		return CommunityComment.objects.filter(post_id=post_id).select_related('user_profile__user')
+
+	def perform_create(self, serializer):
+		post_id = self.kwargs['post_pk']
+		try:
+			post = CommunityPost.objects.get(pk=post_id)
+		except CommunityPost.DoesNotExist:
+			from django.http import Http404
+			raise Http404("Post not found")
+		user_profile, _ = UserProfile.objects.get_or_create(user=self.request.user, defaults={
+			'age': 25,
+			'gender': 'male',
+			'height_cm': 170,
+			'weight_kg': 70,
+			'activity_level': 'sedentary',
+			'goals': 'general health',
+		})
+		serializer.save(post=post, user_profile=user_profile)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me_userprofile(request):
+	try:
+		up = UserProfile.objects.get(user=request.user)
+	except UserProfile.DoesNotExist:
+		up = UserProfile.objects.create(user=request.user, age=25, gender='male', height_cm=170, weight_kg=70, activity_level='sedentary', goals='general health')
+	return Response(UserProfileSerializer(up).data)
+
+
+class CommunityGroupListView(generics.ListAPIView):
+	queryset = CommunityGroup.objects.all().order_by('name')
+	serializer_class = CommunityGroupSerializer
+	permission_classes = [AllowAny]
+
+
+class CommunityChallengeListView(generics.ListAPIView):
+	queryset = CommunityChallenge.objects.all().prefetch_related('leaderboard__user_profile__user')
+	serializer_class = CommunityChallengeSerializer
+	permission_classes = [AllowAny]
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -98,8 +280,6 @@ def generate_meal_plan(request, profile_id):
 	fats = round(0.3 * calories / 9)
 
 	# Personalized recipe filtering
-	from .serializers import RecipeSerializer
-	import random
 	recipes = Recipe.objects.all()
 
 	# Filter by dietary preference (if set)
@@ -147,6 +327,7 @@ def generate_meal_plan(request, profile_id):
 		}
 	}
 	return Response(meal_plan)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def onboarding(request):
@@ -156,67 +337,44 @@ def onboarding(request):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH'])
 @permission_classes([AllowAny])
 def userprofile_detail(request, pk):
-    try:
-        profile = UserProfile.objects.get(pk=pk)
-    except UserProfile.DoesNotExist:
-        return Response({'error': 'UserProfile not found'}, status=404)
-    serializer = UserProfileSerializer(profile)
-    return Response(serializer.data)
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+	"""
+	Retrieve or update a user profile.
+	- GET:    returns the profile data
+	- PUT:    full update of the profile
+	- PATCH:  partial update of the profile
+	"""
+	try:
+		profile = UserProfile.objects.get(pk=pk)
+	except UserProfile.DoesNotExist:
+		return Response({'error': 'UserProfile not found'}, status=404)
+
+	if request.method in ['PUT', 'PATCH']:
+		serializer = UserProfileSerializer(
+			profile,
+			data=request.data,
+			partial=(request.method == 'PATCH')
+		)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	serializer = UserProfileSerializer(profile)
+	return Response(serializer.data)
 
 @api_view(['GET'])
 def tracking_data(request, pk):
-    try:
-        profile = UserProfile.objects.get(pk=pk)
-        food_logs = FoodLog.objects.filter(user_profile=profile)
+	"""
+	Legacy endpoint kept for compatibility; returns user's FoodLogs.
+	"""
+	try:
+		profile = UserProfile.objects.get(pk=pk)
+		food_logs = FoodLog.objects.filter(user_profile__user=profile.user)
+		serializer = FoodLogSerializer(food_logs, many=True)
+		return Response(serializer.data)
+	except UserProfile.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
 
-        # Group food logs by date and calculate daily calorie intake
-        daily_calories = {}
-        daily_macros = {"protein": {}, "carbs": {}, "fat": {}}
-        for log in food_logs:
-            date = log.date.strftime('%Y-%m-%d')
-            if date not in daily_calories:
-                daily_calories[date] = 0
-                daily_macros["protein"][date] = 0
-                daily_macros["carbs"][date] = 0
-                daily_macros["fat"][date] = 0
-            daily_calories[date] += log.calories
-            daily_macros["protein"][date] += log.protein
-            daily_macros["carbs"][date] += log.carbs
-            daily_macros["fat"][date] += log.fat
-
-        calorie_intake = [daily_calories[date] for date in sorted(daily_calories.keys())]
-        macros = {
-            "protein": [daily_macros["protein"][date] for date in sorted(daily_macros["protein"].keys())],
-            "carbs": [daily_macros["carbs"][date] for date in sorted(daily_macros["carbs"].keys())],
-            "fat": [daily_macros["fat"][date] for date in sorted(daily_macros["fat"].keys())]
-        }
-
-        tracking_info = {
-            "weightData": [80, 79.5, 79, 78.7, 78.2, 77.8, 77.5],
-            "weightLabels": ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25", "Today"],
-            "bodyMeasurements": {
-                "waist": [90, 89, 88.5, 88, 87.5, 87, 86.5],
-                "hips": [100, 99.5, 99, 98.5, 98, 97.5, 97]
-            },
-            "calorieIntake": calorie_intake,
-            "calorieTarget": 2000,
-            "macros": macros,
-            "micronutrients": {"Fiber": 80, "Sugar": 60, "Sodium": 70, "VitaminC": 90},
-            "activityLog": [
-                {"date": "2025-09-10", "activity": "Morning Walk", "steps": 3500, "kcal": 120},
-                {"date": "2025-09-11", "activity": "Gym Session", "steps": 0, "kcal": 350},
-                {"date": "2025-09-12", "activity": "Yoga", "steps": 0, "kcal": 90}
-            ],
-            "progressPhotos": [
-                {"url": "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80", "date": "2025-08-15"},
-                {"url": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80", "date": "2025-09-15"}
-            ]
-        }
-        return Response(tracking_info)
-    except UserProfile.DoesNotExist:
-        return Response({'error': 'UserProfile not found'}, status=404)

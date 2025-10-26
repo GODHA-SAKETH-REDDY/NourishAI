@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './MealPlans.css';
-import { fetchMealPlan, fetchUserProfile } from './api';
+import { fetchMealPlan, fetchUserProfile, createFoodLog } from './api';
 
 const userName = "Alex";
 const today = new Date();
 const fallbackImg = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80";
 
-export default function MealPlans({ onboardingData, onLogMeal }) {
+export default function MealPlans({ onLogMeal }) {
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showRecipe, setShowRecipe] = useState(null);
   const [groceryList, setGroceryList] = useState(null);
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+  const toastTimerRef = useRef(null);
 
   useEffect(() => {
     // Use the correct UserProfile id (14) for testing
@@ -30,6 +32,23 @@ export default function MealPlans({ onboardingData, onLogMeal }) {
         setError('Failed to load meal plan');
         setLoading(false);
       });
+  }, []);
+
+  // Helper to show a temporary toast
+  const showToast = (message, type = 'success', durationMs = 2500) => {
+    // Clear any existing timer first
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((t) => ({ ...t, visible: false }));
+      toastTimerRef.current = null;
+    }, durationMs);
+  };
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
   }, []);
 
   if (loading) return <div className="mealplans-dashboard">Loading...</div>;
@@ -89,7 +108,7 @@ export default function MealPlans({ onboardingData, onLogMeal }) {
                   </div>
                   <div className="mealplans-meal-preptime">⏰ {meal.prep_time} mins</div>
                   <div className="mealplans-meal-actions">
-                    <button className="mealplans-meal-action-btn primary" onClick={() => setShowRecipe(meal)}>📖 View Recipe</button>
+                    <button className="mealplans-meal-action-btn primary" onClick={() => setShowRecipe({ ...meal, mealType: key })}>📖 View Recipe</button>
                   </div>
                 </div>
               ))}
@@ -115,7 +134,29 @@ export default function MealPlans({ onboardingData, onLogMeal }) {
             <ol>
               {(showRecipe.instructions || '').split('\n').map((step, i) => <li key={i}>{step}</li>)}
             </ol>
-            <button className="mealplans-modal-content button primary" onClick={() => { onLogMeal(showRecipe); setShowRecipe(null); }}>Log Meal</button>
+            <button className="mealplans-modal-content button primary" onClick={async () => {
+              try {
+                const dateStr = new Date().toISOString().slice(0, 10);
+                const meal_type = (showRecipe.mealType === 'snacks') ? 'snack' : showRecipe.mealType;
+                // Create backend food log (if authenticated, server attaches user_profile)
+                await createFoodLog({
+                  recipe_id: showRecipe.id,
+                  date: dateStr,
+                  meal_type,
+                  calories: showRecipe.calories,
+                  protein: showRecipe.protein,
+                  carbs: showRecipe.carbs,
+                  fats: showRecipe.fats,
+                });
+                showToast('Meal logged to Tracking', 'success');
+              } catch (e) {
+                // Non-fatal: continue to update UI even if backend fails
+                console.warn('Failed to persist food log, showing in UI only:', e);
+                showToast('Saved locally. Log in to sync.', 'warning');
+              }
+              onLogMeal(showRecipe);
+              setShowRecipe(null);
+            }}>Log Meal</button>
             <button className="mealplans-modal-content button" onClick={() => setShowRecipe(null)}>Close</button>
           </div>
         </div>
@@ -157,6 +198,11 @@ export default function MealPlans({ onboardingData, onLogMeal }) {
             </ul>
             <button className="mealplans-modal-content button" onClick={() => setGroceryList(null)}>Close</button>
           </div>
+        </div>
+      )}
+      {toast.visible && (
+        <div className={`mealplans-toast ${toast.type}`} role="status" aria-live="polite">
+          {toast.message}
         </div>
       )}
     </div>

@@ -285,3 +285,29 @@
   transform: translateY(-2px) scale(1.04);
   box-shadow: 0 2px 12px #fda08533;
 }
+
+/* --- Toast Notification --- */
+.mealplans-toast {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1200;
+  min-width: 240px;
+  max-width: 80vw;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.8rem;
+  color: #0f172a;
+  background: #e2e8f0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  font-weight: 700;
+  animation: toastPop 180ms ease-out both;
+}
+
+.mealplans-toast.success { background: #bbf7d0; border: 2px solid #22c55e; }
+.mealplans-toast.warning { background: #fde68a; border: 2px solid #f59e0b; }
+.mealplans-toast.error { background: #fecaca; border: 2px solid #ef4444; }
+
+@keyframes toastPop {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}

@@ -1,37 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Community.css";
+import { fetchCommunityPosts, toggleLikePost, createCommunityComment, createCommunityPost } from "./api";
 
 // Demo/mock data
 const demoUsers = [
   { username: "Priya", avatar: "https://randomuser.me/api/portraits/women/44.jpg", badges: ["1-Month Streak", "Community Helper"] },
   { username: "Rahul", avatar: "https://randomuser.me/api/portraits/men/32.jpg", badges: ["First 5 Kgs Lost"] },
 ];
-const demoPosts = [
-  {
-    id: 1,
-    user: demoUsers[0],
-    content: "Down 2 kgs this week! The Grilled Paneer Salad recipe was amazing.",
-    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
-    likes: 12,
-    liked: false,
-    comments: [
-      { user: demoUsers[1], text: "Congrats! That’s awesome progress!" },
-    ],
-    topic: "Weight Loss Journeys",
-    date: "2025-09-14"
-  },
-  {
-    id: 2,
-    user: demoUsers[1],
-    content: "Tried the Vegan Buddha Bowl today. Super filling and tasty!",
-    image: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
-    likes: 7,
-    liked: true,
-    comments: [],
-    topic: "Vegetarian Recipes",
-    date: "2025-09-13"
-  }
-];
+// Feed is fetched from backend; demo arrays for other sections remain
 const demoChallenges = [
   { name: "Hydration Hero", desc: "Drink 8 glasses of water daily for 7 days.", leaderboard: ["Priya", "Rahul", "Asha"] },
   { name: "Step Up Challenge", desc: "Most steps in a week!", leaderboard: ["Rahul", "Priya", "Asha"] },
@@ -54,24 +30,73 @@ const demoExpertAdvice = [
 
 export default function Community() {
   const [filter, setFilter] = useState("Trending");
-  const [posts, setPosts] = useState(demoPosts);
+  const [posts, setPosts] = useState([]);
   const [commentInputs, setCommentInputs] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [newPost, setNewPost] = useState({ content: "", image_url: "", topic: "" });
 
-  // Filter logic
-  const filteredPosts = posts.filter(
-    p => filter === "Trending" || filter === "Newest" || p.topic === filter
-  );
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const sort = filter === "Trending" ? "trending" : undefined;
+        const topic = filter;
+        const data = await fetchCommunityPosts({ filter: topic, sort });
+        if (!active) return;
+        setPosts(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (active) setError("Failed to load posts");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    load();
+    return () => { active = false; };
+  }, [filter]);
 
   // Like handler
   const handleLike = (id) => {
-    setPosts(posts => posts.map(p => p.id === id ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 } : p));
+    // optimistic update
+    setPosts(ps => ps.map(p => p.id === id ? { ...p, liked: !p.liked, likes_count: (p.likes_count || 0) + (p.liked ? -1 : 1) } : p));
+    toggleLikePost(id).then((updated) => {
+      setPosts(ps => ps.map(p => p.id === id ? { ...p, liked: updated.liked, likes_count: updated.likes_count } : p));
+    }).catch(() => {
+      // revert on error
+      setPosts(ps => ps.map(p => p.id === id ? { ...p, liked: !p.liked, likes_count: (p.likes_count || 0) + (p.liked ? -1 : 1) } : p));
+    });
+  };
+
+  const handleCreatePost = async () => {
+    const content = newPost.content.trim();
+    if (!content) return;
+    try {
+      const created = await createCommunityPost({
+        content,
+        image_url: newPost.image_url || undefined,
+        topic: newPost.topic || undefined,
+      });
+      setNewPost({ content: "", image_url: "", topic: "" });
+      // Prepend new post
+      setPosts(ps => [created, ...ps]);
+    } catch (e) {
+      setError("Failed to create post");
+    }
   };
 
   // Comment handler
-  const handleComment = (id) => {
-    if (!commentInputs[id]) return;
-    setPosts(posts => posts.map(p => p.id === id ? { ...p, comments: [...p.comments, { user: demoUsers[0], text: commentInputs[id] }] } : p));
-    setCommentInputs(inputs => ({ ...inputs, [id]: "" }));
+  const handleComment = async (id) => {
+    const text = (commentInputs[id] || "").trim();
+    if (!text) return;
+    try {
+      const newComment = await createCommunityComment(id, text);
+      setPosts(ps => ps.map(p => p.id === id ? { ...p, comments: [...(p.comments || []), newComment] } : p));
+      setCommentInputs(inputs => ({ ...inputs, [id]: "" }));
+    } catch (e) {
+      // optionally set error UI
+    }
   };
 
   return (
@@ -79,32 +104,65 @@ export default function Community() {
       {/* 1. Community Feed */}
       <div className="community-section">
         <div className="community-section-title">Community Feed 🤝</div>
+        {/* Create new post */}
+        <div className="community-post" style={{ background: 'rgba(255,255,255,0.9)' }}>
+          <div style={{ fontWeight: 700, color: '#23d5ab', marginBottom: 8 }}>Share something with the community</div>
+          <textarea
+            rows={3}
+            placeholder="What's on your mind?"
+            value={newPost.content}
+            onChange={e => setNewPost(p => ({ ...p, content: e.target.value }))}
+            style={{ width: '100%', borderRadius: 8, border: '1px solid #e7f6ef', padding: 8 }}
+          />
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <input
+              type="text"
+              placeholder="Image URL (optional)"
+              value={newPost.image_url}
+              onChange={e => setNewPost(p => ({ ...p, image_url: e.target.value }))}
+              style={{ flex: 1, borderRadius: 8, border: '1px solid #e7f6ef', padding: 8 }}
+            />
+            <select
+              value={newPost.topic}
+              onChange={e => setNewPost(p => ({ ...p, topic: e.target.value }))}
+              style={{ borderRadius: 8, border: '1px solid #e7f6ef', padding: 8 }}
+            >
+              <option value="">Topic (optional)</option>
+              <option value="Weight Loss Journeys">Weight Loss Journeys</option>
+              <option value="Vegetarian Recipes">Vegetarian Recipes</option>
+            </select>
+            <button onClick={handleCreatePost} className="community-feed-filter" style={{ whiteSpace: 'nowrap' }}>Post</button>
+          </div>
+        </div>
         <div className="community-feed-filters">
           {["Trending", "Newest", "Weight Loss Journeys", "Vegetarian Recipes"].map(f => (
             <button key={f} className={"community-feed-filter" + (filter === f ? " active" : "")} onClick={() => setFilter(f)}>{f}</button>
           ))}
         </div>
-        {filteredPosts.map(post => (
+        {loading && <div style={{padding: '0.5rem 0'}}>Loading posts…</div>}
+        {error && <div style={{color:'#b00020', padding:'0.5rem 0'}}>{error}</div>}
+        {!loading && posts.length === 0 && (
+          <div style={{padding:'0.5rem 0'}}>No posts yet. Be the first to share!</div>
+        )}
+        {posts.map(post => (
           <div className="community-post" key={post.id}>
             <div className="community-post-header">
-              <img src={post.user.avatar} alt="avatar" className="community-post-avatar" />
-              <span className="community-post-username">{post.user.username}</span>
-              <div className="community-post-badges">
-                {post.user.badges && post.user.badges.map(b => <span className="community-post-badge" key={b}>{b}</span>)}
-              </div>
-              <span style={{ marginLeft: "auto", color: "#888", fontSize: 13 }}>{post.date}</span>
+              <img src={post.user?.avatar || "https://ui-avatars.com/api/?background=23d5ab&color=fff&name=" + encodeURIComponent(post.user?.username || "U")} alt="avatar" className="community-post-avatar" />
+              <span className="community-post-username">{post.user?.username || "User"}</span>
+              <div className="community-post-badges"></div>
+              <span style={{ marginLeft: "auto", color: "#888", fontSize: 13 }}>{new Date(post.created_at).toLocaleDateString()}</span>
             </div>
             <div className="community-post-content">{post.content}</div>
-            {post.image && <img src={post.image} alt="post" className="community-post-image" />}
+            {post.image_url && <img src={post.image_url} alt="post" className="community-post-image" />}
             <div className="community-post-actions">
               <span className={"community-post-like" + (post.liked ? " liked" : "")} onClick={() => handleLike(post.id)}>
-                ♥ {post.likes}
+                ♥ {post.likes_count || 0}
               </span>
             </div>
             <div className="community-post-comments">
-              {post.comments.map((c, i) => (
+              {(post.comments || []).map((c, i) => (
                 <div className="community-post-comment" key={i}>
-                  <span className="community-post-comment-username">{c.user.username}:</span> {c.text}
+                  <span className="community-post-comment-username">{c.user?.username || "User"}:</span> {c.text}
                 </div>
               ))}
               <div className="community-post-add-comment">

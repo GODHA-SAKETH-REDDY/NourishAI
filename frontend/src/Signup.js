@@ -52,7 +52,7 @@ export default function Signup({ onSignup, onShowLogin }) {
         {error && <p className="auth-error">{error}</p>}
         {success && <p className="auth-success">{success}</p>}
         <div className="auth-login-link">
-          Already have an account? <a href="#" className="login-link" onClick={e => { e.preventDefault(); if (onShowLogin) onShowLogin(); }}>Log In</a>
+          Already have an account? <button type="button" className="login-link" onClick={() => { if (onShowLogin) onShowLogin(); }}>Log In</button>
         </div>
       </form>
     </div>

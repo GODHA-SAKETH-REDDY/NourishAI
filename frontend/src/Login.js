@@ -59,7 +59,9 @@ export default function Login({ onLogin }) {
           />
         </label>
         <div className="auth-form-links">
-          <a href="#" className="forgot-link">Forgot Password?</a>
+          <button type="button" className="forgot-link" onClick={() => { /* TODO: route to forgot password */ }}>
+            Forgot Password?
+          </button>
         </div>
         <button type="submit" className="auth-btn">Log In</button>
         {error && <p className="auth-error">{error}</p>}
@@ -68,7 +70,7 @@ export default function Login({ onLogin }) {
           <button type="button" className="auth-social-btn apple">Apple</button>
         </div>
         <div className="auth-signup-link">
-          New here? <a href="#" className="signup-link">Sign Up</a>
+          New here? <button type="button" className="signup-link" onClick={() => { /* TODO: route to signup */ }}>Sign Up</button>
         </div>
       </form>
     </div>
