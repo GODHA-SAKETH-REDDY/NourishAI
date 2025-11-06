@@ -1,6 +1,7 @@
 
 
 import React, { useState } from 'react';
+import { API_BASE } from './config';
 import './Login.css';
 
 export default function Signup({ onSignup, onShowLogin }) {
@@ -17,7 +18,7 @@ export default function Signup({ onSignup, onShowLogin }) {
     setError('');
     setSuccess('');
     try {
-      const response = await fetch('http://localhost:8000/api/register/', {
+      const response = await fetch(`${API_BASE}/api/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

@@ -25,9 +25,7 @@ COPY backend/requirements.txt ./requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy project
-COPY backend/ ./backend/
-# Copy Django project root files if any
-COPY manage.py ./
+COPY backend/ ./
 
 # Copy built frontend into backend's expected build folder
 COPY --from=frontend-build /app/frontend/build ./frontend/build
@@ -42,4 +40,5 @@ ENV DJANGO_DEBUG=False
 EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["gunicorn", "nutritionist_backend.wsgi", "--bind", "0.0.0.0:8000"]
+# Use $PORT provided by the platform (default to 8000 locally)
+CMD ["sh", "-c", "gunicorn nutritionist_backend.wsgi --bind 0.0.0.0:${PORT:-8000}"]

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from './config';
 
 function OnboardingForm({ onProfileCreated }) {
   const [form, setForm] = useState({
@@ -24,7 +25,7 @@ function OnboardingForm({ onProfileCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/api/onboarding/', {
+      const response = await fetch(`${API_BASE}/api/onboarding/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,3 +1,5 @@
+import { API_BASE } from './config';
+
 // Update user profile
 export async function updateUserProfile(userId, data) {
   const res = await fetch(`${API_BASE}/api/userprofile/${userId}/`, {
@@ -9,7 +11,7 @@ export async function updateUserProfile(userId, data) {
   return res.json();
 }
 // API utility for frontend-backend communication
-const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8000';
+// API_BASE comes from config.js; when empty, requests are same-origin
 
 function authHeaders() {
   const token = localStorage.getItem('access');
@@ -154,11 +156,8 @@ export async function fetchFoodLogs() {
   return res.json();
 }
 
-// New code block
-const BASE_URL = "http://127.0.0.1:8000/api";
-
 export const fetchData = async () => {
-    const response = await fetch(`${BASE_URL}/some-endpoint/`);
+  const response = await fetch(`${API_BASE}/api/some-endpoint/`);
     const data = await response.json();
     return data;
 };

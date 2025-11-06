@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from './config';
 
 function FoodLog() {
   const [logs, setLogs] = useState([]);
@@ -27,7 +28,7 @@ function FoodLog() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:8000/api/foodlogs/', {
+      const response = await fetch(`${API_BASE}/api/foodlogs/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -63,7 +64,7 @@ function FoodLog() {
           date = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
       }
-      const response = await fetch('http://localhost:8000/api/foodlogs/', {
+      const response = await fetch(`${API_BASE}/api/foodlogs/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

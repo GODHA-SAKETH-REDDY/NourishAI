@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from './config';
 
 
 import { useEffect } from 'react';
@@ -15,7 +16,7 @@ function Dashboard({ profileId }) {
       setError('');
       setMealPlan(null);
       try {
-        const response = await fetch(`http://localhost:8000/api/generate-meal-plan/${profileId}/`);
+  const response = await fetch(`${API_BASE}/api/generate-meal-plan/${profileId}/`);
         if (response.ok) {
           const data = await response.json();
           setMealPlan(data);

@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: nourishai
+    env: docker
+    autoDeploy: true
+    plan: free
+    region: oregon # change to your nearest region
+    # Render will use the Dockerfile in the repo root
+    healthCheckPath: /
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      # Use the managed Postgres connection string
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nourishai-db
+          property: connectionString
+      # optional: explicitly allow hostnames; settings.py currently allows all
+      # - key: DJANGO_ALLOWED_HOSTS
+      #   value: "${RENDER_EXTERNAL_HOSTNAME}"
+
+databases:
+  - name: nourishai-db
+    plan: free
+    region: oregon # match service region

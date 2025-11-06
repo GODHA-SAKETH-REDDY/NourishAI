@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from './config';
 
 function RecipeBrowser() {
   const [recipes, setRecipes] = useState([]);
@@ -16,7 +17,7 @@ function RecipeBrowser() {
     setLoading(true);
     setError('');
     setSelectedRecipe(null);
-    let url = 'http://localhost:8000/api/recipes/';
+  let url = `${API_BASE}/api/recipes/`;
     if (query) {
       url += `?search=${encodeURIComponent(query)}`;
     }
